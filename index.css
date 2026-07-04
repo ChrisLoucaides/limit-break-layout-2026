@@ -181,11 +181,11 @@ body {
 
 .logo {
   position: absolute;
-  top: 13px;
+  top: -10px;
   left: 50%;
   transform: translateX(-50%);
-  width: 91px;
-  height: 91px;
+  width: 140px;
+  height: 140px;
   background-image: url("../logo.png");
   background-size: contain;
   background-repeat: no-repeat;
