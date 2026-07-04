@@ -69,7 +69,7 @@ body {
   justify-content: center;
   box-sizing: border-box;
   overflow: hidden;
-  background: var(--bg-color);
+  background: #401b51;
 }
 
 .tournament_name {
@@ -90,7 +90,7 @@ body {
   justify-content: center;
   box-sizing: border-box;
   overflow: hidden;
-  background: var(--bg-color);
+  background: #673383;
   margin-bottom: 17px;
 }
 
@@ -145,13 +145,13 @@ body {
 
 .p1.twitter {
   left: 25px;
-  background: var(--p1-score-bg-color);
+  background: #401b51;
   color: var(--p1-score-color);
 }
 
 .p2.twitter {
   right: 25px;
-  background: var(--p2-score-bg-color);
+  background: #401b51;
   color: var(--p2-score-color);
 }
 
@@ -316,13 +316,13 @@ body {
 }
 
 .p1 .score {
-  color: var(--p1-score-color);
-  background: var(--p1-score-bg-color);
+  color: #e0e0e0;
+  background: #411b52;
 }
 
 .p2 .score {
-  color: var(--p2-score-color);
-  background: var(--p2-score-bg-color);
+  color: #e0e0e0;
+  background: #411b52;
 }
 
 .sponsor {
@@ -330,7 +330,7 @@ body {
 }
 
 .p1 .sponsor {
-  color: var(--p1-score-bg-color);
+  color: #e38c57;
 
   /* For gradient color */
   /* background: INSERT LINEAR GRADIENT COLOR HERE; */
@@ -339,7 +339,7 @@ body {
 }
 
 .p2 .sponsor {
-  color: var(--p2-score-bg-color);
+  color: #e38c57;
 
   /* For gradient color */
   /* background: INSERT LINEAR GRADIENT COLOR HERE; */
