@@ -1,27 +1,60 @@
+/* ================================================================
+   SCOREBOARD — VGBC LAYOUT, LIMIT BREAK SKIN
+   In-game overlay. Restyled to sit alongside
+   layout/versus_screen_webcams and follow the LIMIT BREAK brand
+   guidelines: neon cyan -> magenta on deep navy, thin glowing
+   borders, condensed uppercase display type, scan-line texture.
+
+   P1 is always cyan and P2 always magenta — the per-team colours
+   TSH writes into --pN-score-bg-color are deliberately ignored so
+   the pair always reads as the brand (same call the versus screen
+   makes).
+   ================================================================ */
+
+:root {
+  --lb-cyan: #00d4ff;
+  --lb-magenta: #ee00cc;
+  --lb-navy: #08081a;
+  /* Semi-transparent so the overlay still breathes over the game feed */
+  --lb-surface: rgba(11, 11, 26, 0.82);
+  --lb-grad: linear-gradient(135deg, #00d4ff, #ee00cc);
+
+  /* Per-player accents — fixed brand colours */
+  --p1: #00d4ff;
+  --p1-deep: #0088ff;
+  --p1-glow: rgba(0, 212, 255, 0.45);
+  --p2: #ee00cc;
+  --p2-deep: #ff00aa;
+  --p2-glow: rgba(238, 0, 204, 0.45);
+
+  /* Retro broadcast texture (brand: "scan lines overlay") */
+  --lb-scanlines: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 3px,
+    rgba(0, 212, 255, 0.05) 3px,
+    rgba(0, 212, 255, 0.05) 4px
+  );
+}
+
+/* Display face. Brand display is Barlow Condensed; SairaCondensed is
+   the bundled equivalent and carries the CJK fallback chain needed for
+   player tags, so it is used here and by the versus screen. To switch,
+   load Barlow Condensed and put it in front of var(--font). */
 body {
-  font-family: "Figtree", "M Plus 1p", sans-serif;
-  font-weight: 900;
-  opacity: 0;
-  overflow: hidden;
+  font-family: var(--font);
+  font-weight: 700;
   margin: 0;
   width: 1920px;
   height: 1080px;
-  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.12))
-    drop-shadow(0 3px 1px rgba(0, 0, 0, 0.14))
-    drop-shadow(0 1px 5px rgba(0, 0, 0, 0.12))
-    drop-shadow(0 -1px 2px rgba(0, 0, 0, 0.1));
-  letter-spacing: 1;
-}
-
-.anim_container_outer {
-  position: absolute;
   overflow: hidden;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 1920px;
-  height: 1080px;
+  background: transparent;
+  opacity: 0; /* faded in by globals.js once data loads */
+  /* main.css adds a heavy inverse text-stroke on <body>; not wanted here */
+  -webkit-text-stroke: 0;
 }
 
+.anim_container_outer,
 .anim_container_inner {
   position: absolute;
   overflow: hidden;
@@ -31,128 +64,350 @@ body {
   height: 1080px;
 }
 
+/* ================================================================
+   PLAYER BLOCKS
+   [ name pill + score plate ]
+        [ match / phase chip ]
+   ================================================================ */
+
 .container {
   position: absolute;
-  display: flex;
-  box-sizing: border-box;
-  flex-direction: column;
-  align-items: center;
-  width: 496px;
-  height: 91px;
-  top: 14px;
-  background: var(--text-color);
-  border-radius: 12px;
-  padding-top: 4px;
-}
-
-.p1.container {
-  background-position: 100% 0;
-  left: 380px;
-}
-
-.p2.container {
-  background-position: 0 0;
-  right: 380px;
-}
-
-.tournament_container {
-  position: absolute;
-  border-radius: 8px;
-  left: 30px;
-  top: 51px;
-  width: 316px;
-  height: 54px;
-  padding-top: 0px;
+  top: 22px;
+  width: 480px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   box-sizing: border-box;
-  overflow: hidden;
-  background: #401b51;
 }
 
-.tournament_name {
-  color: var(--text-color);
-  height: 100%;
-  font-size: 20px;
-  width: 280px;
-}
+.p1.container { left: 340px; }
+.p2.container { right: 340px; }
 
+/* --- Name pill ------------------------------------------------ */
 .inner_container {
-  position: static;
-  width: 488px;
-  height: 53px;
-  border-radius: 8px;
+  position: relative;
+  width: 100%;
+  height: 64px;
+  box-sizing: border-box;
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: center;
-  box-sizing: border-box;
-  overflow: hidden;
-  background: #673383;
-  margin-bottom: 17px;
+  gap: 14px;
+  padding: 0 20px;
+  border-radius: 9999px;
+  background: var(--lb-surface);
+  border: 2px solid;
 }
 
+/* padding on the inner side leaves room for the score plate, which
+   straddles the pill's edge */
 .p1 .inner_container {
-  flex-direction: row;
+  padding-right: 52px;
+  border-color: var(--p1);
+  box-shadow: 0 0 26px var(--p1-glow), inset 0 0 22px rgba(0, 212, 255, 0.07),
+    0 8px 16px rgba(0, 0, 0, 0.4);
 }
 
 .p2 .inner_container {
   flex-direction: row-reverse;
+  padding-left: 52px;
+  border-color: var(--p2);
+  box-shadow: 0 0 26px var(--p2-glow), inset 0 0 22px rgba(238, 0, 204, 0.07),
+    0 8px 16px rgba(0, 0, 0, 0.4);
 }
 
-.name {
+/* Scan-line texture inside the pill */
+.inner_container::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--lb-scanlines);
+  pointer-events: none;
+}
+
+/* Outer-edge cluster: flag, then sponsor mark, then the name reading
+   inward toward the logo. Hidden items collapse, and `gap` keeps the
+   spacing honest without leaving dead space behind. */
+.flags_container { order: 1; }
+.sponsor-container { order: 2; }
+.name { order: 3; }
+
+.flags_container,
+.sponsor-container,
+.flagcountry {
   display: flex;
-  width: 100%;
-  height: 53px;
-  font-size: 27px;
-  justify-content: center;
-  box-sizing: border-box;
-  width: 100%;
-  margin: 0 12px;
-  flex-direction: column;
+  align-items: center;
+  flex: 0 0 auto;
+}
+
+.flag {
+  display: block;
+  width: 46px;
+  height: 32px;
+  object-fit: cover;
+  border-radius: 3px;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.18);
+}
+
+.sponsor-logo {
+  display: block;
+  width: 44px;
+  height: 44px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+/* index.js emits an empty placeholder (style="") when a player has no
+   flag / no sponsor logo — drop it so the name closes the gap. */
+.flag[style=""],
+.sponsor-logo[style=""] { display: none; }
+
+/* --- Name ----------------------------------------------------- */
+.name {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 100%;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
   overflow: hidden;
-  color: var(--text-color);
+  font-size: 34px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #ffffff;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
 }
 
-/* Compensate for sponsor logo */
-.p1 .name {
-  margin-left: 56px;
+/* Names read outward-in; FitText squeezes with scaleX, so the origin has
+   to match the alignment or long tags get clipped. */
+.p1 .name .text { justify-content: flex-start; transform-origin: left; }
+.p2 .name .text { justify-content: flex-end; transform-origin: right; }
+
+.sponsor { margin-right: 12px; }
+.p1 .sponsor { color: var(--p1); }
+.p2 .sponsor { color: var(--p2); }
+
+/* Japanese transcript styling from Transcript() */
+.name .tsh_transcript { align-items: flex-start; }
+.p2 .name .tsh_transcript { align-items: flex-end; }
+
+/* --- Score plate ---------------------------------------------- */
+.score {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  font-size: 40px;
+  font-weight: 700;
+  color: #0a0a1f;
+  z-index: 5;
+  border: 3px solid rgba(255, 255, 255, 0.18);
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.25);
 }
 
-.p2 .name {
-  margin-right: 56px;
+.score .text { transform-origin: center; }
+
+.p1 .score {
+  right: -34px;
+  background: linear-gradient(135deg, var(--p1), var(--p1-deep));
+  box-shadow: 0 0 22px var(--p1-glow), 0 6px 14px rgba(0, 0, 0, 0.5);
 }
+
+.p2 .score {
+  left: -34px;
+  background: linear-gradient(135deg, var(--p2), var(--p2-deep));
+  box-shadow: 0 0 22px var(--p2-glow), 0 6px 14px rgba(0, 0, 0, 0.5);
+}
+
+/* --- Match / phase chip --------------------------------------- */
+.match_container,
+.phase_container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 34px;
+  margin-top: 10px;
+}
+
+.match_container { flex-direction: row; }
+.phase_container { flex-direction: row-reverse; }
+
+.match,
+.phase {
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  max-width: 420px;
+  height: 34px;
+  padding: 0 20px;
+  border-radius: 9999px;
+  background: var(--lb-surface);
+  border: 1px solid;
+  font-size: 19px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: #ffffff;
+  overflow: hidden;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+}
+
+.match .text,
+.phase .text { transform-origin: center; }
+
+.match {
+  border-color: rgba(0, 212, 255, 0.45);
+  box-shadow: 0 0 18px rgba(0, 212, 255, 0.14), 0 6px 12px rgba(0, 0, 0, 0.35);
+}
+
+.phase {
+  border-color: rgba(238, 0, 204, 0.45);
+  box-shadow: 0 0 18px rgba(238, 0, 204, 0.14), 0 6px 12px rgba(0, 0, 0, 0.35);
+}
+
+/* --- Losers-bracket badge ------------------------------------- */
+.losers_container {
+  display: flex;
+  align-items: center;
+  height: 34px;
+}
+
+.losers {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  margin: 0 8px;
+  box-sizing: border-box;
+  border-radius: 50%;
+  background: var(--lb-surface);
+  border: 1px solid;
+  font-size: 19px;
+  line-height: 1;
+}
+
+.p1 .losers {
+  border-color: var(--p1);
+  color: var(--p1);
+  box-shadow: 0 0 14px rgba(0, 212, 255, 0.3);
+}
+
+.p2 .losers {
+  border-color: var(--p2);
+  color: var(--p2);
+  box-shadow: 0 0 14px rgba(238, 0, 204, 0.3);
+}
+
+/* ================================================================
+   TOURNAMENT NAME  (top-left, gradient frame)
+   ================================================================ */
+
+/* Sits to the left of the P1 pill and a size step down from it, so the
+   two modules read as primary + secondary rather than competing. */
+.tournament_container {
+  position: absolute;
+  left: 30px;
+  top: 30px;
+  width: 280px;
+  height: 48px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 20px;
+  overflow: hidden;
+  border-radius: 9999px;
+  background: var(--lb-surface);
+  box-shadow: 0 0 22px rgba(0, 212, 255, 0.14), 0 0 30px rgba(238, 0, 204, 0.12),
+    0 8px 16px rgba(0, 0, 0, 0.4);
+}
+
+/* Gradient border via mask — the brand's signature frame */
+.tournament_container::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 2px;
+  background: var(--lb-grad);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.tournament_name {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  font-size: 20px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: #ffffff;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+}
+
+.tournament_name .text { transform-origin: center; }
+
+/* ================================================================
+   TWITTER HANDLES  (geometry kept as-is so the supplied camera
+   borders still line up — skin only)
+   ================================================================ */
 
 .twitter {
   position: absolute;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
+  top: 821px;
   width: 348px;
   height: 43px;
-  border-radius: 8px;
-  color: white;
-  font-size: 21px;
-  text-align: center;
-  justify-content: center;
   box-sizing: border-box;
-  top: 821px;
-  padding-left: 15px;
-  padding-right: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 18px;
+  overflow: hidden;
+  border-radius: 9999px;
+  background: var(--lb-surface);
+  border: 2px solid;
+  font-size: 21px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+}
+
+.twitter .text {
+  gap: 8px;
+  transform-origin: center;
 }
 
 .p1.twitter {
   left: 25px;
-  background: #401b51;
-  color: var(--p1-score-color);
+  color: white;
+  border-color: var(--p1);
+  box-shadow: 0 0 22px var(--p1-glow), inset 0 0 18px rgba(0, 212, 255, 0.07),
+    0 8px 16px rgba(0, 0, 0, 0.4);
 }
 
 .p2.twitter {
   right: 25px;
-  background: #401b51;
-  color: var(--p2-score-color);
+  color: white;
+  border-color: var(--p2);
+  box-shadow: 0 0 22px var(--p2-glow), inset 0 0 18px rgba(238, 0, 204, 0.07),
+    0 8px 16px rgba(0, 0, 0, 0.4);
 }
 
 .twitter_logo {
@@ -160,38 +415,34 @@ body {
   -webkit-mask-size: contain;
   -webkit-mask-repeat: no-repeat;
   -webkit-mask-position: center;
-  width: 25px;
-  height: 25px;
-  margin-right: 3px;
+  width: 23px;
+  height: 23px;
+  flex-shrink: 0;
 }
 
-.p1 .twitter_logo {
-  /* Color of the bird logo */
-  background: var(--p1-score-color);
-  /* Twitter Blue */
-  /* background: #1da1f2; */
-}
+.p1 .twitter_logo { background: var(--p1); }
+.p2 .twitter_logo { background: var(--p2); }
 
-.p2 .twitter_logo {
-  /* Color of the bird logo */
-  background: var(--p2-score-color);
-  /* Twitter Blue */
-  /* background: #1da1f2; */
-}
+/* ================================================================
+   LOGOS
+   ================================================================ */
 
+/* Event logo, centred between the two score plates */
 .logo {
   position: absolute;
-  top: -10px;
+  top: -16px;
   left: 50%;
   transform: translateX(-50%);
-  width: 140px;
-  height: 140px;
+  width: 190px;
+  height: 190px;
   background-image: url("../logo.png");
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
-  border-radius: var(--border-radius);
   z-index: 9;
+  filter: drop-shadow(0 0 18px rgba(0, 212, 255, 0.4))
+    drop-shadow(0 0 34px rgba(238, 0, 204, 0.28))
+    drop-shadow(0 6px 10px rgba(0, 0, 0, 0.5));
 }
 
 /* Name a PNG image tournament_logo.png to have it be displayed at the bottom center */
@@ -206,146 +457,21 @@ body {
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
-  border-radius: var(--border-radius);
   z-index: 9;
+  filter: drop-shadow(0 0 18px rgba(0, 212, 255, 0.3))
+    drop-shadow(0 0 34px rgba(238, 0, 204, 0.22))
+    drop-shadow(0 6px 10px rgba(0, 0, 0, 0.5));
 }
 
-.phase_container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: row-reverse;
-  width: 100%;
-  height: 1%;
-}
+/* ================================================================
+   EMPTY STATES
+   ================================================================ */
 
-.match_container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: row;
-  width: 100%;
-  height: 1%;
-}
+.match.text_empty,
+.phase.text_empty,
+.losers_container.text_empty { display: none; }
 
-.losers_container {
-  position: relative;
-  display: flex;
-  width: 486px;
-  height: 10px;
-}
-
-.match_container .losers_container {
-  flex-direction: row;
-  justify-content: end;
-}
-
-.phase_container .losers_container {
-  flex-direction: row-reverse;
-  justify-content: start;
-}
-
-.phase {
-  position: absolute;
-  width: 75%;
-  height: 1%;
-  color: var(--bg-color);
-  font-size: 21px;
-  font-weight: 800;
-}
-
-.match {
-  position: absolute;
-  width: 75%;
-  height: 1%;
-  color: #18181b;
-  color: var(--bg-color);
-  font-size: 21px;
-  font-weight: 800;
-}
-
-.losers {
-  display: flex;
-  width: 62px;
-  height: 53px;
-  font-size: 23px;
-  color: var(--bg-color);
-  justify-content: center;
-  align-items: center;
-  overflow: hidden;
-  position: absolute;
-}
-
-.p1 .losers {
-  right: 0;
-}
-
-.p2 .losers {
-  left: 0;
-}
-
-.flags_container {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.flag {
-  display: inline-block;
-  object-fit: contain;
-  width: 44px;
-  height: 31px;
-}
-
-.p1 .flag {
-  margin-left: 12px;
-}
-
-.p2 .flag {
-  margin-right: 12px;
-}
-
-.score {
-  text-align: center;
-  width: 62px;
-  height: 53px;
-  font-size: 35px;
-  flex-grow: 0;
-  flex-shrink: 0;
-  overflow: hidden;
-}
-
-.p1 .score {
-  color: #e0e0e0;
-  background: #411b52;
-}
-
-.p2 .score {
-  color: #e0e0e0;
-  background: #411b52;
-}
-
-.sponsor {
-  margin-right: 10px;
-}
-
-.p1 .sponsor {
-  color: #e38c57;
-
-  /* For gradient color */
-  /* background: INSERT LINEAR GRADIENT COLOR HERE; */
-  /* -webkit-background-clip: text; */
-  /* -webkit-text-fill-color: transparent; */
-}
-
-.p2 .sponsor {
-  color: #e38c57;
-
-  /* For gradient color */
-  /* background: INSERT LINEAR GRADIENT COLOR HERE; */
-  /* -webkit-background-clip: text; */
-  /* -webkit-text-fill-color: transparent; */
-}
+.tournament_container:has(.tournament_name.text_empty) { display: none; }
 
 .hidden {
   opacity: 0%;
@@ -355,21 +481,4 @@ body {
 .unhidden {
   opacity: 100%;
   transition: opacity 0.5s;
-}
-
-.sponsor-container {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.sponsor-logo {
-  display: inline-block;
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-position: center;
-  width: 48px;
-  height: 48px;
-  margin-right: 4px;
-  margin-left: 4px;
 }
