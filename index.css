@@ -195,38 +195,139 @@ body {
 .name .tsh_transcript { align-items: flex-start; }
 .p2 .name .tsh_transcript { align-items: flex-end; }
 
-/* --- Score plate ---------------------------------------------- */
+/* --- Score plate: materia orb --------------------------------- */
+/* Read as a glass sphere in the FF7 materia idiom: a shaded body, a
+   hot core, a specular cap at the top-left, coloured light bouncing
+   back off the bottom rim, and a slow swirl trapped in the glass.
+   Palette is unchanged — the --orb-* steps below are just lighter and
+   darker stops of the same --p1 / --p2 brand colours.
+   Sized 74px flat (was 68px + a 3px border) so the geometry, and the
+   -34px straddle over the name pill, stay exactly where they were. */
 .score {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  width: 68px;
-  height: 68px;
+  width: 74px;
+  height: 74px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  isolation: isolate; /* keeps the swirl's screen blend inside the orb */
   font-size: 40px;
   font-weight: 700;
   color: #0a0a1f;
   z-index: 5;
-  border: 3px solid rgba(255, 255, 255, 0.18);
-  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.25);
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.35);
+  background:
+    /* specular cap — the window reflection */
+    radial-gradient(
+      38% 28% at 33% 20%,
+      rgba(255, 255, 255, 0.95) 0%,
+      rgba(255, 255, 255, 0.32) 45%,
+      rgba(255, 255, 255, 0) 76%
+    ),
+    /* hot core, sitting just off-centre from the light */
+      radial-gradient(
+        circle at 40% 42%,
+        var(--orb-light) 0%,
+        rgba(255, 255, 255, 0) 54%
+      ),
+    /* light bouncing back up off the far inside wall */
+      radial-gradient(
+        58% 40% at 64% 90%,
+        var(--orb-bounce) 0%,
+        rgba(255, 255, 255, 0) 72%
+      ),
+    /* sphere body */
+      radial-gradient(
+        circle at 36% 32%,
+        var(--orb-mid) 0%,
+        var(--orb-mid) 28%,
+        var(--orb-deep) 74%,
+        var(--orb-shadow) 100%
+      );
 }
 
-.score .text { transform-origin: center; }
+/* The suspended swirl. Blurred hard so it reads as cloudy energy
+   rather than a conic gradient, and drifting slowly enough that it
+   never pulls the eye off the score. */
+.score::before {
+  content: "";
+  position: absolute;
+  inset: -28%;
+  background: conic-gradient(
+    from 0deg,
+    rgba(255, 255, 255, 0) 0deg,
+    var(--orb-swirl) 45deg,
+    rgba(255, 255, 255, 0) 115deg,
+    var(--orb-light) 185deg,
+    rgba(255, 255, 255, 0) 255deg,
+    var(--orb-swirl) 320deg,
+    rgba(255, 255, 255, 0) 360deg
+  );
+  filter: blur(8px);
+  opacity: 0.5;
+  mix-blend-mode: screen;
+  animation: orb_swirl 22s linear infinite;
+  pointer-events: none;
+}
+
+/* Glass shell: thin lit edge, a catch of light on the top lip, the
+   coloured bounce along the bottom, and interior shading under the
+   cap so the sphere has depth behind the number. */
+.score::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(
+    16% 11% at 70% 79%,
+    rgba(255, 255, 255, 0.5) 0%,
+    rgba(255, 255, 255, 0) 72%
+  );
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.3),
+    inset 0 3px 7px rgba(255, 255, 255, 0.4),
+    inset 0 -9px 16px var(--orb-bounce),
+    inset 0 11px 20px rgba(4, 4, 20, 0.42);
+  pointer-events: none;
+  z-index: 3;
+}
+
+/* Number rides above the swirl, below the glass shell */
+.score .text {
+  position: relative;
+  z-index: 2;
+  transform-origin: center;
+}
+
+@keyframes orb_swirl {
+  to { transform: rotate(360deg); }
+}
 
 .p1 .score {
   right: -34px;
-  background: linear-gradient(135deg, var(--p1), var(--p1-deep));
-  box-shadow: 0 0 22px var(--p1-glow), 0 6px 14px rgba(0, 0, 0, 0.5);
+  --orb-light: #d6f8ff;
+  --orb-mid: var(--p1);
+  --orb-deep: var(--p1-deep);
+  --orb-shadow: #002a6b;
+  --orb-bounce: rgba(120, 240, 255, 0.5);
+  --orb-swirl: #7fe9ff;
+  box-shadow: 0 0 26px var(--p1-glow), 0 0 10px rgba(0, 212, 255, 0.45),
+    0 0 0 1px rgba(255, 255, 255, 0.2), 0 6px 14px rgba(0, 0, 0, 0.5);
 }
 
 .p2 .score {
   left: -34px;
-  background: linear-gradient(135deg, var(--p2), var(--p2-deep));
-  box-shadow: 0 0 22px var(--p2-glow), 0 6px 14px rgba(0, 0, 0, 0.5);
+  --orb-light: #ffd6f6;
+  --orb-mid: var(--p2);
+  --orb-deep: #9c0086;
+  --orb-shadow: #2e0033;
+  --orb-bounce: rgba(255, 120, 220, 0.5);
+  --orb-swirl: var(--p2-deep);
+  box-shadow: 0 0 26px var(--p2-glow), 0 0 10px rgba(238, 0, 204, 0.45),
+    0 0 0 1px rgba(255, 255, 255, 0.2), 0 6px 14px rgba(0, 0, 0, 0.5);
 }
 
 /* --- Match / phase chip --------------------------------------- */
