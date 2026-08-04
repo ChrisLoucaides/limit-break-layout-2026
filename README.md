@@ -1,4 +1,5 @@
 # VGBC Style Overlay Properties:
+- Forked from: https://github.com/joaorb64/TournamentStreamHelper
 - The top left container displays the name of the tournament and the bottom containers each display the player's Twitter handle.
 - The match is shown at the bottom of the left player container.
 - The phase and best of x is shown at the bottom of the right player container in "phase - best of x" format.
